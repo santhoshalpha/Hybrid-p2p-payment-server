@@ -78,6 +78,48 @@ uvicorn p2p_service.app:app --reload
 pytest
 ```
 
+## Deploy to Render (Step by Step)
+
+### 1) Push this repo to GitHub
+1. Create a new GitHub repository (e.g., `p2p-payment-service`).
+2. Add the remote and push:
+   ```bash
+   git remote add origin https://github.com/<your-username>/p2p-payment-service.git
+   git push -u origin main
+   ```
+
+### 2) Create a Render Web Service
+1. Go to https://render.com and sign in.
+2. Click **New +** → **Web Service**.
+3. Connect your GitHub repo and select it.
+
+### 3) Configure the Service
+Use these values:
+- **Environment**: `Python 3`
+- **Build Command**:
+  ```bash
+  pip install -r requirements.txt
+  ```
+- **Start Command**:
+  ```bash
+  uvicorn p2p_service.app:app --host 0.0.0.0 --port $PORT
+  ```
+
+### 4) (Optional) Disk for SQLite
+If you want SQLite persistence across deploys:
+1. Add a **Disk** in Render (e.g., `/var/data`).
+2. Update `p2p_service/db.py` to use `/var/data/p2p.db` instead of the default local path.
+
+### 5) Deploy
+1. Click **Create Web Service**.
+2. Wait for build + deploy to finish.
+3. Open the service URL and verify `/health`.
+
+### 6) Test the Live API
+```bash
+curl https://<your-render-url>/health
+```
+
 ## Production Considerations (Next Steps)
 - Replace SQLite with PostgreSQL and add row-level locking.
 - Add auth, rate limiting, and request signing.
